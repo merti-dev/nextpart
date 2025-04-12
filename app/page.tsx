@@ -32,7 +32,7 @@ export default async function Page() {
 
   return (
     <div>
-      <div className="flex flex-wrap justify-center px-4 py-6 bg-gray-50 mb-8">
+      <div className="flex flex-wrap justify-center px-4 py-6 bg-gray-50">
         {categories.map((category, index) => (
           <Badge
             key={index}

@@ -40,12 +40,12 @@ export default function ProductList({
       { threshold: 1.0 }
     );
 
-    if (observerRef.current) observer.observe(observerRef.current);
+    if (observerRef.current) {observer.observe(observerRef.current)};
     return () => observer.disconnect();
   }, [loading, hasMore]);
 
   useEffect(() => {
-    if (offset === initialProducts.length) return;
+    if (offset === initialProducts.length) {return};
     const fetchMore = async () => {
       setLoading(true);
       const res = await fetch(
@@ -61,7 +61,7 @@ export default function ProductList({
 
   return (
     <>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 pt-20 pb-12" >
         {products.map((product) => (
           <Card
             key={product.id}
