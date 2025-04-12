@@ -8,11 +8,11 @@ type Product = {
   category: {
     name: string;
   };
-  image: string;
+  images: string[];
 };
 
 async function getProducts(): Promise<Product[]> {
-  const res = await fetch("https://fakestoreapi.com/products?offset=0&limit=48", {
+  const res = await fetch("https://api.escuelajs.co/api/v1/products", {
     next: { revalidate: 3600 }, // optional caching
   });
   return res.json();
@@ -49,10 +49,9 @@ export default async function HomePage() {
             </CardHeader>
 
             <CardContent className="flex justify-center items-center h-48 bg-white overflow-hidden flex-grow">
-              {product.image && (
+              {product.images?.[0] && (
                 <img
-                  loading="lazy"
-                  src={product.image}
+                  src={product.images?.[0]}
                   alt={product.title}
                   className="object-contain max-h-full"
                 />
