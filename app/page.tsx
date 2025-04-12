@@ -1,3 +1,4 @@
+// app/page.tsx
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { notFound } from "next/navigation";
@@ -18,6 +19,19 @@ type Category = {
   name: string;
 };
 
+async function getProducts(categoryId?: number, page = 1): Promise<Product[]> {
+  const limit = 8;
+  const offset = (page - 1) * limit;
+  const url = categoryId
+    ? `https://api.escuelajs.co/api/v1/products/?categoryId=${categoryId}&offset=${offset}&limit=${limit}`
+    : `https://api.escuelajs.co/api/v1/products?offset=${offset}&limit=${limit}`;
+
+  const res = await fetch(url, { cache: "no-store" });
+  if (!res.ok) notFound();
+
+  return res.json();
+}
+
 async function getCategories(): Promise<Category[]> {
   const res = await fetch("https://api.escuelajs.co/api/v1/categories", {
     cache: "no-store",
@@ -26,28 +40,16 @@ async function getCategories(): Promise<Category[]> {
   return res.json();
 }
 
-async function getProducts(categoryId?: number): Promise<Product[]> {
-  const url = categoryId
-    ? `https://api.escuelajs.co/api/v1/products/?categoryId=${categoryId}`
-    : `https://api.escuelajs.co/api/v1/products?offset=0&limit=12`;
-
-  const res = await fetch(url, { cache: "no-store" });
-  if (!res.ok) notFound();
-  return res.json();
-}
-
 export default async function Page({
   searchParams,
 }: {
-  searchParams: { category?: string };
+  searchParams: { category?: string; page?: string };
 }) {
-  const categoryName = searchParams.category || "All";
+  const page = parseInt(searchParams.page || "1", 10);
   const categories = await getCategories();
-
-  const selectedCategory = categories.find((cat) => cat.name === categoryName);
+  const selectedCategory = categories.find((cat) => cat.name === searchParams.category);
   const categoryId = selectedCategory?.id;
-
-  const products = await getProducts(categoryId);
+  const products = await getProducts(categoryId, page);
 
   return (
     <div className="px-4 sm:px-6 lg:px-12">
@@ -55,9 +57,9 @@ export default async function Page({
         {["All", ...categories.map((cat) => cat.name)].map((cat, i) => (
           <a
             key={i}
-            href={`/?category=${encodeURIComponent(cat)}`}
+            href={`/?category=${encodeURIComponent(cat)}&page=1`}
             className={`rounded-full border border-gray-300 bg-white text-gray-800 text-base font-medium mx-2 my-2 px-5 py-2 shadow-sm hover:shadow-md transition-transform hover:scale-105 ${
-              cat === categoryName ? "bg-gray-200" : ""
+              cat === (searchParams.category || "All") ? "bg-gray-200" : ""
             }`}
           >
             {cat}
@@ -95,6 +97,23 @@ export default async function Page({
             </CardFooter>
           </Card>
         ))}
+      </div>
+
+      <div className="flex justify-center gap-4 pb-10">
+        {page > 1 && (
+          <a
+            href={`/?category=${searchParams.category || "All"}&page=${page - 1}`}
+            className="px-4 py-2 border rounded hover:bg-gray-100"
+          >
+            Previous
+          </a>
+        )}
+        <a
+          href={`/?category=${searchParams.category || "All"}&page=${page + 1}`}
+          className="px-4 py-2 border rounded hover:bg-gray-100"
+        >
+          Next
+        </a>
       </div>
     </div>
   );
