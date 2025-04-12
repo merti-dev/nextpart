@@ -76,7 +76,8 @@ export default function ProductList({
             <CardContent className="flex justify-center items-center h-48 bg-white overflow-hidden flex-grow">
               {product.image && (
                 <img
-                  src={product.image}
+                src={`${product.image}?v=${product.id}`}
+                  key={product.image}
                   alt={product.title}
                   className="object-contain max-h-full"
                 />
