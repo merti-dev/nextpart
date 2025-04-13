@@ -1,4 +1,3 @@
-// app/page.tsx
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { notFound } from "next/navigation";
@@ -43,12 +42,15 @@ async function getCategories(): Promise<Category[]> {
 export default async function Page({
   searchParams,
 }: {
-  searchParams: { category?: string; page?: string };
+  searchParams: Promise<{ category?: string; page?: string }>;
 }) {
-  const page = parseInt(searchParams.page || "1", 10);
+  const { category, page: pageParam } = await searchParams;
+  const page = parseInt(pageParam || "1", 10);
+
   const categories = await getCategories();
-  const selectedCategory = categories.find((cat) => cat.name === searchParams.category);
+  const selectedCategory = categories.find((cat) => cat.name === category);
   const categoryId = selectedCategory?.id;
+
   const products = await getProducts(categoryId, page);
 
   return (
@@ -59,7 +61,7 @@ export default async function Page({
             key={i}
             href={`/?category=${encodeURIComponent(cat)}&page=1`}
             className={`rounded-full border border-gray-300 bg-white text-gray-800 text-base font-medium mx-2 my-2 px-5 py-2 shadow-sm hover:shadow-md transition-transform hover:scale-105 ${
-              cat === (searchParams.category || "All") ? "bg-gray-200" : ""
+              cat === (category || "All") ? "bg-gray-200" : ""
             }`}
           >
             {cat}
@@ -102,14 +104,14 @@ export default async function Page({
       <div className="flex justify-center gap-4 pb-10">
         {page > 1 && (
           <a
-            href={`/?category=${searchParams.category || "All"}&page=${page - 1}`}
+            href={`/?category=${category || "All"}&page=${page - 1}`}
             className="px-4 py-2 border rounded hover:bg-gray-100"
           >
             Previous
           </a>
         )}
         <a
-          href={`/?category=${searchParams.category || "All"}&page=${page + 1}`}
+          href={`/?category=${category || "All"}&page=${page + 1}`}
           className="px-4 py-2 border rounded hover:bg-gray-100"
         >
           Next
